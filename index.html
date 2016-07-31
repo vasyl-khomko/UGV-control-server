@@ -30,7 +30,7 @@
       };
       xhttp.open("POST", "set-command", true);
       xhttp.setRequestHeader("Content-type", "application/json");
-      //xhttp.send(JSON.stringify({command: command}));
+      xhttp.send(JSON.stringify({command: command}));
       console.log("commandValue: " + commandValue);
       console.log("command: " + command);
       document.getElementById("command-value").innerHTML = commandValue;
