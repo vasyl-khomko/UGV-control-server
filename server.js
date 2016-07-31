@@ -26,7 +26,7 @@ http.createServer(function (request, response) {
    } else if (request.url == "/get-command") {
      response.writeHead(200, {'Content-Type': 'text/plain'});
      response.end(command);
-     command = "";
+     //command = "";
 
    } else {
       fs.readFile("index.html", function(err, data){

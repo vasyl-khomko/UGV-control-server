@@ -6,7 +6,22 @@
   <title>Arduino Commander</title>
   <script>
     function sendCommand() {
-      var command = document.getElementById("command-input").value;
+      var commandValue = document.getElementById("command-input").value;
+      var command = "00";
+      if(commandValue < 50) {
+        if(commandValue != 0) {
+          var command = "0" + Math.floor((50 - commandValue) / 5);
+        } else {
+          var command = "09";
+        }
+      } else {
+        if(commandValue < 100) {
+          var command = Math.floor((commandValue - 50) / 5) + "0";
+        } else {
+          var command = "90";
+        }
+      }
+
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -15,28 +30,25 @@
       };
       xhttp.open("POST", "set-command", true);
       xhttp.setRequestHeader("Content-type", "application/json");
-      xhttp.send(JSON.stringify({command: command}));
+      //xhttp.send(JSON.stringify({command: command}));
+      console.log("commandValue: " + commandValue);
       console.log("command: " + command);
-    }
-    function getCommand() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-          document.getElementById("command-input").value = "";
-          document.getElementById("command-result").innerHTML = xhttp.responseText;
-        }
-      };
-      xhttp.open("GET", "get-command", true);
-      xhttp.send();
+      document.getElementById("command-value").innerHTML = commandValue;
+      document.getElementById("command-result").innerHTML = command;
     }
   </script>
 </head>
 <body>
-  <p>Write command: <input type="text" name="command-input" id="command-input"></p>
-  <button onclick="sendCommand()">Send command</button>
-  <p>Status: <span id="status"></span></p>
+  <p>Write command: </p>
+  <input name="command-input" id="command-input" type="range" list="a-values" oninput="sendCommand()">
+  <datalist id="a-values">
+   <option value="0" label="Low">
+   <option value="100" label="High">
+  </datalist>
+  <button onclick="document.getElementById('command-input').value = 50; sendCommand();">Stop</button>
   <hr>
-  <button onclick="getCommand()">Get command</button>
+  <p>Value: <span id="command-value"></span></p>
   <p>Command: <span id="command-result"></span></p>
+  <p>Status: <span id="status"></span></p>
 </body>
 </html>
