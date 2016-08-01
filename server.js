@@ -5,7 +5,7 @@ var assert = require('assert');
 var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 8080
 var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 
-var command = "";
+var command = {};
 
 http.createServer(function (request, response) {
    console.log("request.url: " + request.url);
@@ -16,7 +16,7 @@ http.createServer(function (request, response) {
        data += chunk;
      });
      request.on('end', function() {
-       command = JSON.parse(data).command;
+       command = JSON.parse(data);
        console.log(command);
      });
 
@@ -25,7 +25,7 @@ http.createServer(function (request, response) {
 
    } else if (request.url == "/get-command") {
      response.writeHead(200, {'Content-Type': 'text/plain'});
-     response.end(command);
+     response.end(JSON.stringify(command));
      //command = "";
 
    } else {

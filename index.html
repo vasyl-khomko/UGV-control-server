@@ -4,22 +4,26 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <title>Arduino Commander</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <style>
+    #command-input {
+      width: 150px;
+      height: 150px;
+      transform: rotate(270deg);
+      border: 5px solid red;
+  }
+  </style>
   <script>
     function sendCommand() {
-      var commandValue = document.getElementById("command-input").value;
-      var command = "00";
-      if(commandValue < 50) {
-        if(commandValue != 0) {
-          var command = "0" + Math.floor((50 - commandValue) / 5);
-        } else {
-          var command = "09";
-        }
+      var value = parseInt(document.getElementById("command-input").value);
+      var command = {};
+
+      if(value < 0) {
+        command.type = 2;
+        command.value = Math.abs(value);
       } else {
-        if(commandValue < 100) {
-          var command = Math.floor((commandValue - 50) / 5) + "0";
-        } else {
-          var command = "90";
-        }
+        command.type = 1;
+        command.value = value;
       }
 
       var xhttp = new XMLHttpRequest();
@@ -30,25 +34,26 @@
       };
       xhttp.open("POST", "set-command", true);
       xhttp.setRequestHeader("Content-type", "application/json");
-      xhttp.send(JSON.stringify({command: command}));
-      console.log("commandValue: " + commandValue);
-      console.log("command: " + command);
-      document.getElementById("command-value").innerHTML = commandValue;
-      document.getElementById("command-result").innerHTML = command;
+      xhttp.send(JSON.stringify(command));
+      console.log("command: " + JSON.stringify(command))
+      document.getElementById("command-value").innerHTML = value;
+      document.getElementById("command-result").innerHTML = JSON.stringify(command);
     }
   </script>
 </head>
 <body>
-  <p>Write command: </p>
-  <input name="command-input" id="command-input" type="range" list="a-values" oninput="sendCommand()">
-  <datalist id="a-values">
-   <option value="0" label="Low">
-   <option value="100" label="High">
-  </datalist>
-  <button onclick="document.getElementById('command-input').value = 50; sendCommand();">Stop</button>
-  <hr>
-  <p>Value: <span id="command-value"></span></p>
-  <p>Command: <span id="command-result"></span></p>
-  <p>Status: <span id="status"></span></p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-sm-6 col-md-offset-3 col-sm-offset-3">
+        <p>Write command: </p>
+        <input name="command-input" id="command-input" type="range" min="-16" max="16" step="1" oninput="sendCommand()">
+        <button onclick="document.getElementById('command-input').value = 50; sendCommand();">Stop</button>
+        <hr>
+        <p>Value: <span id="command-value"></span></p>
+        <p>Command: <span id="command-result"></span></p>
+        <p>Status: <span id="status"></span></p>
+        <div>
+        </div>
+  </div>
 </body>
 </html>
