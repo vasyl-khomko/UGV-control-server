@@ -7,10 +7,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
   <style>
     #command-input {
-      width: 150px;
-      height: 150px;
-      transform: rotate(270deg);
-      border: 5px solid red;
+      -webkit-appearance: slider-vertical
   }
   </style>
   <script>
@@ -39,21 +36,66 @@
       document.getElementById("command-value").innerHTML = value;
       document.getElementById("command-result").innerHTML = JSON.stringify(command);
     }
+
+    function sendDirectionCommand(type) {
+      var command = {};
+      if (type == 1 ) {
+        command.type = 3;
+        command.value = 15;
+      } else if (type == -1) {
+        command.type = 4;
+        command.value = 15;
+      } else {
+        command.type = 3;
+        command.value = 0;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+          document.getElementById("status").innerHTML = xhttp.responseText;
+        }
+      };
+      xhttp.open("POST", "set-command", true);
+      xhttp.setRequestHeader("Content-type", "application/json");
+      xhttp.send(JSON.stringify(command));
+      console.log("command: " + JSON.stringify(command))
+      document.getElementById("command-value").innerHTML = type;
+      document.getElementById("command-result").innerHTML = JSON.stringify(command);
+    }
   </script>
 </head>
 <body>
   <div class="container">
     <div class="row">
       <div class="col-md-6 col-sm-6 col-md-offset-3 col-sm-offset-3">
-        <p>Write command: </p>
-        <input name="command-input" id="command-input" type="range" min="-16" max="16" step="1" oninput="sendCommand()">
-        <button onclick="document.getElementById('command-input').value = 50; sendCommand();">Stop</button>
-        <hr>
-        <p>Value: <span id="command-value"></span></p>
-        <p>Command: <span id="command-result"></span></p>
-        <p>Status: <span id="status"></span></p>
-        <div>
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="text-center">
+              <p>Write command: </p>
+              <input id="command-input" type="range" min="-15" max="15" step="1" oninput="sendCommand()">
+              <button class="btn btn-danger" onclick="document.getElementById('command-input').value = 0; sendCommand();">Stop</button>
+              <hr>
+              <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-default" onclick="sendDirectionCommand(-1);">Left</button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-default" onclick="sendDirectionCommand(0);">Middle</button>
+                </div>
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-default" onclick="sendDirectionCommand(1);">Right</button>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <p>Value: <span id="command-value"></span></p>
+            <p>Command: <span id="command-result"></span></p>
+            <p>Status: <span id="status"></span></p>
+          </div>
         </div>
-  </div>
+      </div>
+    </div>
+</div>
 </body>
 </html>
