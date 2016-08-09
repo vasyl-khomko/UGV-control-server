@@ -5,7 +5,8 @@ var assert = require('assert');
 var serverPort = process.env.OPENSHIFT_NODEJS_PORT || 8080
 var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 
-var commands = [];
+var commands = [{"type":1,"value":0},{"type":3,"value":7}];
+
 
 http.createServer(function (request, response) {
    console.log("request.url: " + request.url);
