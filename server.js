@@ -1,4 +1,5 @@
 var http = require("http");
+var WebSocketServer = require('websocket').server;
 var fs = require("fs");
 var assert = require('assert');
 
@@ -7,8 +8,10 @@ var serverIpAddress = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1'
 
 var commands = [{"type":1,"value":0},{"type":3,"value":7}];
 
+var socketCoonection = null;
 
-http.createServer(function (request, response) {
+
+var server = http.createServer(function (request, response) {
    console.log("request.url: " + request.url);
 
    if(request.url == "/set-command") {
@@ -24,6 +27,10 @@ http.createServer(function (request, response) {
          commands[1] = command;
        }
 
+       if(socketCoonection) {
+         socketCoonection.sendUTF(JSON.stringify(commands));
+       }
+
        console.log(command);
      });
 
@@ -36,7 +43,7 @@ http.createServer(function (request, response) {
      //command = "";
 
    } else {
-      fs.readFile("index.html", function(err, data){
+      fs.readFile("index.html", function(err, data) {
         response.writeHead(200, {'Content-Type': 'text/html'});
         response.write(data);
         response.end();
@@ -46,3 +53,29 @@ http.createServer(function (request, response) {
 
 // Console will print the message
 console.log('Server running at ' + serverIpAddress + ":" + serverPort);
+
+// create the server
+var wsServer = new WebSocketServer({
+    httpServer: server
+});
+
+// WebSocket server
+wsServer.on('request', function(request) {
+    console.log('on request');
+    var connection = request.accept(null, request.origin);
+    socketCoonection = connection;
+
+    // This is the most important callback for us, we'll handle
+    // all messages from users here.
+    connection.on('message', function(message) {
+        console.log('on message');
+        if (message.type === 'utf8') {
+            console.log("Message data:" + message.utf8Data);
+            connection.sendUTF(JSON.stringify( { type: 'history', data: 'hgfhgfhgf'} ));
+        }
+    });
+
+    connection.on('close', function(connection) {
+        console.log('on close');
+    });
+});
